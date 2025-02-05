@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_books
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: books
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_reviews
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: book_management_backend
+    depends_on:
+      - postgres
+      - mongo
+    environment:
+      SERVER_PORT: 8080
+      DATABASE_URL: postgres://postgres:secret@postgres:5432/books?sslmode=disable
+      MONGO_URI: mongodb://mongo:27017
+      JWT_SECRET: supersecret
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    volumes:
+      - .:/app
+    command: [ "/app/docker-entrypoint.sh" ]

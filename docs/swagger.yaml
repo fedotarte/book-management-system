@@ -1,0 +1,939 @@
+definitions:
+  dto.AddBookRequest:
+    properties:
+      book_id:
+        type: string
+    type: object
+  dto.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.AuthorResponse:
+    description: Данные об авторе книги
+    properties:
+      id:
+        description: |-
+          Уникальный идентификатор автора (UUID)
+          Example: "b6d46cd4-e89b-12d3-a456-426614174111"
+        type: string
+      name:
+        description: |-
+          Имя автора (обязательное поле)
+          Required: true
+          Example: "Дж. К. Роулинг"
+        type: string
+    type: object
+  dto.BaseReviewRequest:
+    properties:
+      book_id:
+        description: |-
+          ID книги, к которой относится отзыв (UUID)
+          Required: true
+          Example: "123e4567-e89b-12d3-a456-426614174000"
+        type: string
+      rating:
+        description: |-
+          Оценка (от 1 до 10)
+          Required: true
+          Example: 9
+        maximum: 10
+        minimum: 1
+        type: integer
+      text:
+        description: |-
+          Текст отзыва
+          Required: true
+          Example: "Отличная книга, советую!"
+        type: string
+    required:
+    - book_id
+    - rating
+    - text
+    type: object
+  dto.BookListResponse:
+    description: Ответ API со списком книг
+    properties:
+      books:
+        description: Массив книг
+        items:
+          $ref: '#/definitions/dto.BookResponse'
+        type: array
+      next_cursor:
+        description: |-
+          Следующий маркер для пагинации (если есть)
+          Example: "123e4567-e89b-12d3-a456-426614174002"
+        type: string
+    type: object
+  dto.BookResponse:
+    description: Ответ API на создание/обновление/получение книги
+    properties:
+      authors:
+        description: Авторы книги (массив объектов)
+        items:
+          $ref: '#/definitions/dto.AuthorResponse'
+        type: array
+      average_rating:
+        description: |-
+          Средний рейтинг книги (из 10)
+          Example: 8.5
+        type: number
+      cover_image:
+        description: |-
+          Обложка книги (URL)
+          Example: "/uploads/123e4567-e89b-12d3-a456-426614174000.jpg"
+        type: string
+      description:
+        description: |-
+          Описание книги
+          Example: "Первая книга о приключениях Гарри Поттера"
+        type: string
+      id:
+        description: |-
+          Уникальный идентификатор книги (UUID)
+          Example: "123e4567-e89b-12d3-a456-426614174000"
+        type: string
+      title:
+        description: |-
+          Название книги (обязательное поле)
+          Required: true
+          Example: "Гарри Поттер и философский камень"
+        type: string
+    type: object
+  dto.CreateBookRequest:
+    properties:
+      author_ids:
+        items:
+          type: string
+        type: array
+      cover_image:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.HealthCheckResponse:
+    description: Ответ API с информацией о сервисе
+    type: object
+  dto.ReviewResponse:
+    description: Ответ API с информацией об отзыве
+    properties:
+      book_id:
+        description: |-
+          ID книги, к которой относится отзыв (UUID)
+          Required: true
+          Example: "123e4567-e89b-12d3-a456-426614174000"
+        type: string
+      created_at:
+        description: |-
+          Дата создания
+          Example: "2024-02-01T12:00:00Z"
+        type: string
+      dislikes:
+        description: |-
+          Дизлайки
+          Example: 2
+        type: integer
+      id:
+        description: |-
+          Уникальный идентификатор отзыва (ObjectID в MongoDB)
+          Example: "60c72b2f5f1b2c001f6f1b20"
+        type: string
+      likes:
+        description: |-
+          Лайки
+          Example: 10
+        type: integer
+      rating:
+        description: |-
+          Оценка (от 1 до 10)
+          Required: true
+          Example: 9
+        maximum: 10
+        minimum: 1
+        type: integer
+      text:
+        description: |-
+          Текст отзыва
+          Required: true
+          Example: "Отличная книга, советую!"
+        type: string
+      updated_at:
+        description: |-
+          Дата обновления (если есть)
+          Example: "2024-02-02T14:30:00Z"
+        type: string
+      user_id:
+        description: |-
+          ID автора отзыва (UUID)
+          Example: "550e8400-e29b-41d4-a716-446655440000"
+        type: string
+    required:
+    - book_id
+    - rating
+    - text
+    type: object
+  dto.TokenRefreshRequest:
+    description: Запрос на обновление access-токена с использованием refresh-токена
+    properties:
+      token:
+        description: |-
+          Refresh-токен (обязательное поле)
+          Required: true
+          Example: eyJhbGciOiJIUzI1NiIsInR...
+        type: string
+    required:
+    - token
+    type: object
+  dto.UpdateBookRequest:
+    description: запрос API на обновление книги
+    properties:
+      author_ids:
+        items:
+          type: string
+        type: array
+      cover_image:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.UpdateReadingProgressRequest:
+    properties:
+      pages_read:
+        type: integer
+      status:
+        type: string
+    type: object
+  dto.UserBookResponse:
+    properties:
+      book_id:
+        type: string
+      created_at:
+        type: string
+      pages_read:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.UserLoginRequest:
+    description: Данные для авторизации пользователя
+    properties:
+      email:
+        description: |-
+          Email пользователя (обязательное поле)
+          Required: true
+          Example: user@example.com
+        type: string
+      password:
+        description: |-
+          Пароль (обязательное поле)
+          Required: true
+          Example: mysecurepassword
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.UserRegisterRequest:
+    description: Данные, необходимые для регистрации пользователя
+    properties:
+      email:
+        description: |-
+          Email пользователя (обязательное поле)
+          Required: true
+          Example: user@example.com
+        type: string
+      password:
+        description: |-
+          Пароль пользователя (минимум 6 символов, обязательное поле)
+          Required: true
+          Example: mysecurepassword
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.UserResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      role:
+        type: string
+    type: object
+  dto.VoteReviewRequest:
+    description: Запрос API с голосованием (1 -1 0)
+    properties:
+      vote:
+        description: 1 - лайк, -1 - дизлайк, 0 - удалить голос
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /books:
+    get:
+      description: Получить поджинированный список с курсором
+      parameters:
+      - description: UUID последней книги (для пагинации)
+        in: query
+        name: after_id
+        type: string
+      - description: Количество книг на страницу (по умолчанию 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Данные для обновления книги
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateBookRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.BookListResponse'
+            type: array
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: маркерная пагинация книг
+      tags:
+      - Books
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новую книгу в базу
+      parameters:
+      - description: Данные для создания книги
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBookRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BookResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать книгу
+      tags:
+      - Books
+  /books/{bookID}:
+    get:
+      description: получает книгу из базы по id
+      parameters:
+      - description: UUID книги
+        in: path
+        name: bookID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BookResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: получить книгу по ID
+      tags:
+      - Books
+    put:
+      consumes:
+      - application/json
+      description: обновить книгу в базе по id
+      parameters:
+      - description: UUID книги
+        in: path
+        name: bookID
+        required: true
+        type: string
+      - description: Данные для обновления книги
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateBookRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/dto.BookResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: обновить книгу по ID
+      tags:
+      - Books
+  /books/{bookID}/confirm:
+    put:
+      description: Модератор или админ может подтвердить книгу перед публикацией
+      parameters:
+      - description: UUID книги
+        in: path
+        name: bookID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Book confirmed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Book not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Подтвердить книгу
+      tags:
+      - Books
+  /books/{bookID}/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загрузка файла с обложкой книги (JPG, PNG)
+      parameters:
+      - description: UUID книги
+        in: path
+        name: bookID
+        required: true
+        type: string
+      - description: Файл изображения (JPG, PNG, макс. 50 KB)
+        in: formData
+        name: cover
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid file format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Загрузить обложку книги
+      tags:
+      - Books
+  /health:
+    get:
+      description: отдает 200, если все норм
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HealthCheckResponse'
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: проврка сервиса health-check
+      tags:
+      - Utils
+  /review/{reviewID}:
+    get:
+      description: Возвращает карточку отзыва
+      parameters:
+      - description: ObjectID отзыва
+        in: path
+        name: reviewID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReviewResponse'
+        "400":
+          description: Неверный ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Отзыв не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить отзыв по ID
+      tags:
+      - Reviews
+  /review/{reviewID}/vote:
+    post:
+      consumes:
+      - application/json
+      description: Проголосовать за отзыв +1 -1 0
+      parameters:
+      - description: ObjectID отзыва
+        in: path
+        name: reviewID
+        required: true
+        type: string
+      - description: Данные для голосования
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VoteReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+      security:
+      - BearerAuth: []
+      summary: Проголосовать за отзыв
+      tags:
+      - Reviews
+  /reviews/{reviewID}:
+    delete:
+      description: Удаляет отзыв по ID (только автор, модератор или админ)
+      parameters:
+      - description: ObjectID отзыва
+        in: path
+        name: reviewID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Отзыв успешно удалён'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверные параметры
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Нет прав на удаление
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Отзыв не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить отзыв
+      tags:
+      - Reviews
+    put:
+      consumes:
+      - application/json
+      description: Редактирует текст и/или оценку отзыва
+      parameters:
+      - description: ObjectID отзыва
+        in: path
+        name: reviewID
+        required: true
+        type: string
+      - description: Данные для обновления отзыва
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BaseReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Отзыв успешно обновлён'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверные параметры
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Нет прав на редактирование
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Отзыв не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновить отзыв
+      tags:
+      - Reviews
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Выполняет вход и возвращает токены
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Токены доступа
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Ошибка авторизации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Аутентификация пользователя
+      tags:
+      - Users
+  /users/me:
+    get:
+      description: Возвращает информацию о пользователе по его `userID`
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные о пользователе
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "401":
+          description: Пользователь не аутентифицирован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Пользователь не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Информация о текущем пользователе
+      tags:
+      - Users
+  /users/me/books:
+    get:
+      description: Возвращает список книг, добавленных пользователем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список книг пользователя
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserBookResponse'
+            type: array
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить список книг пользователя
+      tags:
+      - UserBooks
+    post:
+      consumes:
+      - application/json
+      description: Добавляет указанную книгу в список пользователя
+      parameters:
+      - description: ID книги
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddBookRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'message: Книга добавлена в список'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Добавить книгу в список пользователя
+      tags:
+      - UserBooks
+  /users/me/books/{bookID}:
+    delete:
+      description: Удаляет указанную книгу из списка пользователя
+      parameters:
+      - description: UUID книги
+        in: path
+        name: bookID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Книга удалена из списка'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить книгу из списка пользователя
+      tags:
+      - UserBooks
+  /users/me/books/{bookID}/progress:
+    put:
+      consumes:
+      - application/json
+      description: Обновляет статус и количество прочитанных страниц
+      parameters:
+      - description: UUID книги
+        in: path
+        name: bookID
+        required: true
+        type: string
+      - description: Прогресс чтения
+        in: body
+        name: progress
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateReadingProgressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Прогресс чтения обновлен'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновить прогресс чтения
+      tags:
+      - UserBooks
+  /users/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновляет `access_token` и `refresh_token` по действующему `refresh_token`
+      parameters:
+      - description: Refresh токен
+        in: body
+        name: refresh
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TokenRefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Новые токены
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Ошибка авторизации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновление токенов
+      tags:
+      - Users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя в системе
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'message: Пользователь зарегистрирован'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - Users
+swagger: "2.0"
