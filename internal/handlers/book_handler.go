@@ -191,7 +191,7 @@ func (h *BookHandler) DeleteBook(c *gin.Context) {
 //	@Produce		json
 //	@Param			after_id	query		string	false	"UUID последней книги (для пагинации)"
 //	@Param			limit		query		int		false	"Количество книг на страницу (по умолчанию 10)"
-//	@Success		200			{array}		dto.BookListResponse
+//	@Success		200			{array}		dto.PaginatedBooksResponse
 //	@Failure		400			{object}	map[string]string	"Invalid data"
 //	@Failure		500			{object}	map[string]string	"Internal server error"
 //	@Router			/books [get]

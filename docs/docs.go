@@ -15,6 +15,172 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/authors": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет нового автора",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authors"
+                ],
+                "summary": "Создать автора",
+                "parameters": [
+                    {
+                        "description": "Данные для создания автора",
+                        "name": "author",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateAuthorRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/authors/{authorID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "получить автора по id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authors"
+                ],
+                "summary": "получить автора",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID  автора",
+                        "name": "authorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "обновление автора",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authors"
+                ],
+                "summary": "обновление автора",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID автора",
+                        "name": "authorID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для создания автора",
+                        "name": "author",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateAuthorRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthorByBookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/books": {
             "get": {
                 "description": "Получить поджинированный список с курсором",
@@ -37,15 +203,6 @@ const docTemplate = `{
                         "description": "Количество книг на страницу (по умолчанию 10)",
                         "name": "limit",
                         "in": "query"
-                    },
-                    {
-                        "description": "Данные для обновления книги",
-                        "name": "book",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateBookRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -54,7 +211,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.BookListResponse"
+                                "$ref": "#/definitions/dto.PaginatedBooksResponse"
                             }
                         }
                     },
@@ -134,6 +291,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/books/{authorID}": {
+            "delete": {
+                "description": "удалить автора в базе по id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authors"
+                ],
+                "summary": "удалить автора по ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID автора",
+                        "name": "authorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BookDeletionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/books/{bookID}": {
             "get": {
                 "description": "получает книгу из базы по id",
@@ -151,6 +355,18 @@ const docTemplate = `{
                         "name": "bookID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "получить привязку авторов",
+                        "name": "withAuthors",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "получить привязку авторов",
+                        "name": "confirmed",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -345,6 +561,181 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/feedbacks": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет новый отзыв к книге",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedbacks"
+                ],
+                "summary": "получить отзывы о приложении",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID последней автора (для пагинации)",
+                        "name": "after_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Количество авторов на страницу (по умолчанию 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "только проверенные",
+                        "name": "checked",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PaginatedFeedbackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет новый отзыв к книге",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedbacks"
+                ],
+                "summary": "Создать отзыв о приложении",
+                "parameters": [
+                    {
+                        "description": "Данные для создания отзыва",
+                        "name": "review",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseFeedbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatedFeedbackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/feedbacks/{feedbackID}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет новый отзыв к книге",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedbacks"
+                ],
+                "summary": "получить отзывы о приложении",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID отзыва",
+                        "name": "feedbackID",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PaginatedFeedbackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -742,7 +1133,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/users/me/books/": {
             "post": {
                 "security": [
                     {
@@ -1052,7 +1445,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.AuthorResponse": {
+        "dto.AuthorByBookResponse": {
             "description": "Данные об авторе книги",
             "type": "object",
             "properties": {
@@ -1062,6 +1455,44 @@ const docTemplate = `{
                 },
                 "name": {
                     "description": "Имя автора (обязательное поле)\nRequired: true\nExample: \"Дж. К. Роулинг\"",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.AuthorWithBookResponse": {
+            "type": "object",
+            "properties": {
+                "books": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.BookByAuthorResponse"
+                    }
+                },
+                "id": {
+                    "description": "Уникальный идентификатор автора (UUID)\nExample: \"b6d46cd4-e89b-12d3-a456-426614174111\"",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Имя автора (обязательное поле)\nRequired: true\nExample: \"Дж. К. Роулинг\"",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BaseFeedbackRequest": {
+            "type": "object",
+            "required": [
+                "rating",
+                "text"
+            ],
+            "properties": {
+                "rating": {
+                    "description": "Оценка (от 1 до 10)\nRequired: true\nExample: 1",
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "text": {
+                    "description": "Текст отзыва об аппе\nRequired: true\nExample: \"разрабы дауны ваше прилага говно!\"",
                     "type": "string"
                 }
             }
@@ -1090,19 +1521,25 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.BookListResponse": {
+        "dto.BookByAuthorResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Уникальный идентификатор книги (UUID)\nExample: \"123e4567-e89b-12d3-a456-426614174000\"",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Название книги (обязательное поле)\nRequired: true\nExample: \"Гарри Поттер и философский камень\"",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BookDeletionResponse": {
             "description": "Ответ API со списком книг",
             "type": "object",
             "properties": {
-                "books": {
+                "message": {
                     "description": "Массив книг",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.BookResponse"
-                    }
-                },
-                "next_cursor": {
-                    "description": "Следующий маркер для пагинации (если есть)\nExample: \"123e4567-e89b-12d3-a456-426614174002\"",
                     "type": "string"
                 }
             }
@@ -1115,7 +1552,7 @@ const docTemplate = `{
                     "description": "Авторы книги (массив объектов)",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.AuthorResponse"
+                        "$ref": "#/definitions/dto.AuthorByBookResponse"
                     }
                 },
                 "average_rating": {
@@ -1140,6 +1577,26 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateAuthorRequest": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "description": "Имя автора (обязательное поле)\nRequired: true\nExample: \"Из Англии\"",
+                    "type": "string"
+                },
+                "book_ids": {
+                    "description": "Список книг\nRequired: true\nExample: \"Дж. К. Роулинг\"",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "Имя автора (обязательное поле)\nRequired: true\nExample: \"Дж. К. Роулинг\"",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateBookRequest": {
             "type": "object",
             "properties": {
@@ -1160,9 +1617,95 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreatedFeedbackResponse": {
+            "type": "object",
+            "properties": {
+                "createdFeedbackId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.FeedbackResponse": {
+            "type": "object",
+            "properties": {
+                "checked": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.HealthCheckResponse": {
             "description": "Ответ API с информацией о сервисе",
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PaginatedAuthorsResponse": {
+            "type": "object",
+            "properties": {
+                "authors": {
+                    "description": "Список авторов",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.AuthorWithBookResponse"
+                    }
+                },
+                "next_cursor": {
+                    "description": "Следующий маркер для пагинации (если есть)\nExample: \"123e4567-e89b-12d3-a456-426614174002\"",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PaginatedBooksResponse": {
+            "description": "Ответ API со списком книг",
+            "type": "object",
+            "properties": {
+                "books": {
+                    "description": "Массив книг",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.BookResponse"
+                    }
+                },
+                "next_cursor": {
+                    "description": "Следующий маркер для пагинации (если есть)\nExample: \"123e4567-e89b-12d3-a456-426614174002\"",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PaginatedFeedbackResponse": {
+            "type": "object",
+            "properties": {
+                "feedbacks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.FeedbackResponse"
+                    }
+                },
+                "last_id": {
+                    "type": "string"
+                }
+            }
         },
         "dto.ReviewResponse": {
             "description": "Ответ API с информацией об отзыве",
@@ -1222,6 +1765,26 @@ const docTemplate = `{
             "properties": {
                 "token": {
                     "description": "Refresh-токен (обязательное поле)\nRequired: true\nExample: eyJhbGciOiJIUzI1NiIsInR...",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateAuthorRequest": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "description": "Имя автора (обязательное поле)\nRequired: true\nExample: \"Из Англии\"",
+                    "type": "string"
+                },
+                "book_ids": {
+                    "description": "Список книг\nRequired: true\nExample: \"Дж. К. Роулинг\"",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "Имя автора (обязательное поле)\nRequired: true\nExample: \"Дж. К. Роулинг\"",
                     "type": "string"
                 }
             }
@@ -1301,7 +1864,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "password"
+                "password",
+                "username"
             ],
             "properties": {
                 "email": {
@@ -1312,6 +1876,10 @@ const docTemplate = `{
                     "description": "Пароль пользователя (минимум 6 символов, обязательное поле)\nRequired: true\nExample: mysecurepassword",
                     "type": "string",
                     "minLength": 6
+                },
+                "username": {
+                    "description": "Username пользователя (обязательное поле)\nRequired: true\nExample: }{0ТТ@БЬ)Ч",
+                    "type": "string"
                 }
             }
         },
@@ -1339,17 +1907,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api/v1/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Book Management API",
+	Description:      "API для управления книгами, пользователями и отзывами.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -3,12 +3,14 @@ package routes
 import (
 	"book-management-system/internal/handlers"
 	"book-management-system/internal/middleware"
+	"book-management-system/internal/repositories"
 	"book-management-system/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
 // RegisterUserBookRoutes регистрирует роуты для управления книгами пользователя
-func RegisterUserBookRoutes(r *gin.RouterGroup, userBookService *services.UserBookService) {
+func RegisterUserBookRoutes(r *gin.RouterGroup, userBookRepo *repositories.UserBookRepository) {
+	userBookService := services.NewUserBookService(userBookRepo)
 	userBookHandler := handlers.NewUserBookHandler(userBookService)
 
 	userBookRoutes := r.Group("/users/me/books")

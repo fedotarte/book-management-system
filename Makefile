@@ -10,6 +10,11 @@ install:
 	@echo "🛠 Установка зависимостей..."
 	go mod tidy
 
+.PHONY: docs-gen
+docs-gen:
+	@echo "Генерируем доку умарова ))000)"
+	swag init -g ./cmd/main.go -o ./docs
+
 # Запуск базы данных через Docker Compose
 .PHONY: start-db
 start-db:

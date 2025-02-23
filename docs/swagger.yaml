@@ -1,3 +1,4 @@
+basePath: /api/v1/
 definitions:
   dto.AddBookRequest:
     properties:
@@ -11,7 +12,7 @@ definitions:
       refresh_token:
         type: string
     type: object
-  dto.AuthorResponse:
+  dto.AuthorByBookResponse:
     description: Данные об авторе книги
     properties:
       id:
@@ -25,6 +26,44 @@ definitions:
           Required: true
           Example: "Дж. К. Роулинг"
         type: string
+    type: object
+  dto.AuthorWithBookResponse:
+    properties:
+      books:
+        items:
+          $ref: '#/definitions/dto.BookByAuthorResponse'
+        type: array
+      id:
+        description: |-
+          Уникальный идентификатор автора (UUID)
+          Example: "b6d46cd4-e89b-12d3-a456-426614174111"
+        type: string
+      name:
+        description: |-
+          Имя автора (обязательное поле)
+          Required: true
+          Example: "Дж. К. Роулинг"
+        type: string
+    type: object
+  dto.BaseFeedbackRequest:
+    properties:
+      rating:
+        description: |-
+          Оценка (от 1 до 10)
+          Required: true
+          Example: 1
+        maximum: 10
+        minimum: 1
+        type: integer
+      text:
+        description: |-
+          Текст отзыва об аппе
+          Required: true
+          Example: "разрабы дауны ваше прилага говно!"
+        type: string
+    required:
+    - rating
+    - text
     type: object
   dto.BaseReviewRequest:
     properties:
@@ -53,18 +92,25 @@ definitions:
     - rating
     - text
     type: object
-  dto.BookListResponse:
+  dto.BookByAuthorResponse:
+    properties:
+      id:
+        description: |-
+          Уникальный идентификатор книги (UUID)
+          Example: "123e4567-e89b-12d3-a456-426614174000"
+        type: string
+      title:
+        description: |-
+          Название книги (обязательное поле)
+          Required: true
+          Example: "Гарри Поттер и философский камень"
+        type: string
+    type: object
+  dto.BookDeletionResponse:
     description: Ответ API со списком книг
     properties:
-      books:
+      message:
         description: Массив книг
-        items:
-          $ref: '#/definitions/dto.BookResponse'
-        type: array
-      next_cursor:
-        description: |-
-          Следующий маркер для пагинации (если есть)
-          Example: "123e4567-e89b-12d3-a456-426614174002"
         type: string
     type: object
   dto.BookResponse:
@@ -73,7 +119,7 @@ definitions:
       authors:
         description: Авторы книги (массив объектов)
         items:
-          $ref: '#/definitions/dto.AuthorResponse'
+          $ref: '#/definitions/dto.AuthorByBookResponse'
         type: array
       average_rating:
         description: |-
@@ -102,6 +148,29 @@ definitions:
           Example: "Гарри Поттер и философский камень"
         type: string
     type: object
+  dto.CreateAuthorRequest:
+    properties:
+      bio:
+        description: |-
+          Имя автора (обязательное поле)
+          Required: true
+          Example: "Из Англии"
+        type: string
+      book_ids:
+        description: |-
+          Список книг
+          Required: true
+          Example: "Дж. К. Роулинг"
+        items:
+          type: string
+        type: array
+      name:
+        description: |-
+          Имя автора (обязательное поле)
+          Required: true
+          Example: "Дж. К. Роулинг"
+        type: string
+    type: object
   dto.CreateBookRequest:
     properties:
       author_ids:
@@ -115,8 +184,69 @@ definitions:
       title:
         type: string
     type: object
+  dto.CreatedFeedbackResponse:
+    properties:
+      createdFeedbackId:
+        type: string
+    type: object
+  dto.FeedbackResponse:
+    properties:
+      checked:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: string
+      rating:
+        type: integer
+      text:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   dto.HealthCheckResponse:
     description: Ответ API с информацией о сервисе
+    properties:
+      status:
+        type: string
+    type: object
+  dto.PaginatedAuthorsResponse:
+    properties:
+      authors:
+        description: Список авторов
+        items:
+          $ref: '#/definitions/dto.AuthorWithBookResponse'
+        type: array
+      next_cursor:
+        description: |-
+          Следующий маркер для пагинации (если есть)
+          Example: "123e4567-e89b-12d3-a456-426614174002"
+        type: string
+    type: object
+  dto.PaginatedBooksResponse:
+    description: Ответ API со списком книг
+    properties:
+      books:
+        description: Массив книг
+        items:
+          $ref: '#/definitions/dto.BookResponse'
+        type: array
+      next_cursor:
+        description: |-
+          Следующий маркер для пагинации (если есть)
+          Example: "123e4567-e89b-12d3-a456-426614174002"
+        type: string
+    type: object
+  dto.PaginatedFeedbackResponse:
+    properties:
+      feedbacks:
+        items:
+          $ref: '#/definitions/dto.FeedbackResponse'
+        type: array
+      last_id:
+        type: string
     type: object
   dto.ReviewResponse:
     description: Ответ API с информацией об отзыве
@@ -188,6 +318,29 @@ definitions:
     required:
     - token
     type: object
+  dto.UpdateAuthorRequest:
+    properties:
+      bio:
+        description: |-
+          Имя автора (обязательное поле)
+          Required: true
+          Example: "Из Англии"
+        type: string
+      book_ids:
+        description: |-
+          Список книг
+          Required: true
+          Example: "Дж. К. Роулинг"
+        items:
+          type: string
+        type: array
+      name:
+        description: |-
+          Имя автора (обязательное поле)
+          Required: true
+          Example: "Дж. К. Роулинг"
+        type: string
+    type: object
   dto.UpdateBookRequest:
     description: запрос API на обновление книги
     properties:
@@ -257,9 +410,16 @@ definitions:
           Example: mysecurepassword
         minLength: 6
         type: string
+      username:
+        description: |-
+          Username пользователя (обязательное поле)
+          Required: true
+          Example: }{0ТТ@БЬ)Ч
+        type: string
     required:
     - email
     - password
+    - username
     type: object
   dto.UserResponse:
     properties:
@@ -277,9 +437,120 @@ definitions:
         description: 1 - лайк, -1 - дизлайк, 0 - удалить голос
         type: integer
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: API для управления книгами, пользователями и отзывами.
+  title: Book Management API
+  version: "1.0"
 paths:
+  /authors:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет нового автора
+      parameters:
+      - description: Данные для создания автора
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAuthorRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BookResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать автора
+      tags:
+      - Authors
+  /authors/{authorID}:
+    get:
+      consumes:
+      - application/json
+      description: получить автора по id
+      parameters:
+      - description: ID  автора
+        in: path
+        name: authorID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BookResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: получить автора
+      tags:
+      - Authors
+    put:
+      description: обновление автора
+      parameters:
+      - description: UUID автора
+        in: path
+        name: authorID
+        required: true
+        type: string
+      - description: Данные для создания автора
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAuthorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthorByBookResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: обновление автора
+      tags:
+      - Authors
   /books:
     get:
       description: Получить поджинированный список с курсором
@@ -292,12 +563,6 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Данные для обновления книги
-        in: body
-        name: book
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateBookRequest'
       produces:
       - application/json
       responses:
@@ -305,7 +570,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/dto.BookListResponse'
+              $ref: '#/definitions/dto.PaginatedBooksResponse'
             type: array
         "400":
           description: Invalid data
@@ -357,6 +622,37 @@ paths:
       summary: Создать книгу
       tags:
       - Books
+  /books/{authorID}:
+    delete:
+      description: удалить автора в базе по id
+      parameters:
+      - description: UUID автора
+        in: path
+        name: authorID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/dto.BookDeletionResponse'
+        "400":
+          description: Invalid data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: удалить автора по ID
+      tags:
+      - Authors
   /books/{bookID}:
     get:
       description: получает книгу из базы по id
@@ -366,6 +662,14 @@ paths:
         name: bookID
         required: true
         type: string
+      - description: получить привязку авторов
+        in: query
+        name: withAuthors
+        type: boolean
+      - description: получить привязку авторов
+        in: query
+        name: confirmed
+        type: boolean
       produces:
       - application/json
       responses:
@@ -501,6 +805,117 @@ paths:
       summary: Загрузить обложку книги
       tags:
       - Books
+  /feedbacks:
+    get:
+      consumes:
+      - application/json
+      description: Добавляет новый отзыв к книге
+      parameters:
+      - description: UUID последней автора (для пагинации)
+        in: query
+        name: after_id
+        type: string
+      - description: Количество авторов на страницу (по умолчанию 10)
+        in: query
+        name: limit
+        type: integer
+      - description: только проверенные
+        in: query
+        name: checked
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginatedFeedbackResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: получить отзывы о приложении
+      tags:
+      - Feedbacks
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый отзыв к книге
+      parameters:
+      - description: Данные для создания отзыва
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BaseFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreatedFeedbackResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать отзыв о приложении
+      tags:
+      - Feedbacks
+  /feedbacks/{feedbackID}:
+    put:
+      consumes:
+      - application/json
+      description: Добавляет новый отзыв к книге
+      parameters:
+      - description: ID отзыва
+        in: path
+        name: feedbackID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginatedFeedbackResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: получить отзывы о приложении
+      tags:
+      - Feedbacks
   /health:
     get:
       description: отдает 200, если все норм
@@ -751,6 +1166,7 @@ paths:
       summary: Получить список книг пользователя
       tags:
       - UserBooks
+  /users/me/books/:
     post:
       consumes:
       - application/json
@@ -936,4 +1352,9 @@ paths:
       summary: Регистрация пользователя
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

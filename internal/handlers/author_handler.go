@@ -30,7 +30,7 @@ func NewAuthorHandler(service *services.AuthorService) *AuthorHandler {
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			author	body		dto.CreateAuthorRequestDto	true	"Данные для создания автора"
+//	@Param			author	body		dto.CreateAuthorRequest	true	"Данные для создания автора"
 //	@Success		201		{object}	dto.BookResponse
 //	@Failure		400		{object}	map[string]string	"Invalid data"
 //	@Failure		500		{object}	map[string]string	"Internal server error"
@@ -106,7 +106,7 @@ func (h *AuthorHandler) GetAuthor(c *gin.Context) {
 //	@Produce		json
 //	@Param			after_id	query		string	false	"UUID последней автора (для пагинации)"
 //	@Param			limit		query		int		false	"Количество авторов на страницу (по умолчанию 10)"
-//	@Success		200			{array}		dto.AuthorsListResponse
+//	@Success		200			{array}		dto.PaginatedAuthorsResponse
 //	@Failure		400			{object}	map[string]string	"Invalid data"
 //	@Failure		500			{object}	map[string]string	"Internal server error"
 //	@Router			/books [get]
@@ -148,7 +148,7 @@ func (h *AuthorHandler) GetAuthorsPaginated(c *gin.Context) {
 //	@Description	обновление автора
 //	@Tags			Authors
 //	@Produce		json
-//	@Param			authorID	path		string
+//	@Param			authorID	path		string					true	"UUID автора"
 //	@Param			author		body		dto.UpdateAuthorRequest	true	"Данные для создания автора"	false
 //	@Success		200			{object}	dto.AuthorByBookResponse
 //	@Failure		400			{object}	map[string]string	"Invalid data"

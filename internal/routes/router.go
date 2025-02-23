@@ -12,14 +12,16 @@ func InitRouter() *gin.Engine {
 	refreshTokenRepo := repositories.NewRefreshTokenRepository()
 	bookRepo := repositories.NewBookRepository()
 	booksAuthorMappingRepo := repositories.NewBookAuthorRepository()
+	userBookRepo := repositories.NewUserBookRepository()
 	authorRepo := repositories.NewAuthorRepository()
 	reviewRepo := repositories.NewReviewRepository()
+	feedbackRepo := repositories.NewFeedbackRepository()
 
 	r := gin.Default()
 
 	// мидлвари
 	r.Use(middleware.LoggerMiddleware())
-	//Сваггер
+	// Сваггер
 	RegisterSwaggerRoutes(r)
 	// хэлс-чек
 	RegisterHealthCheckRoutes(r)
@@ -28,8 +30,10 @@ func InitRouter() *gin.Engine {
 
 	RegisterUserRoutes(apiV1, userRepo, refreshTokenRepo)
 	RegisterBookRoutes(apiV1, bookRepo, booksAuthorMappingRepo, authorRepo)
+	RegisterUserBookRoutes(apiV1, userBookRepo)
 	RegisterAuthorRoutes(apiV1, bookRepo, booksAuthorMappingRepo, authorRepo)
 	RegisterReviewRoutes(apiV1, reviewRepo, bookRepo)
+	RegisterFeedbackRoutes(apiV1, feedbackRepo)
 
 	return r
 }

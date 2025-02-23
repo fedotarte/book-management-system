@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // ConvertUUIDToString преобразует uuid.UUID в строку
@@ -16,4 +17,8 @@ func ConvertStringToUUID(idStr string) (uuid.UUID, error) {
 		return uuid.UUID{}, errors.New("пустой UUID")
 	}
 	return uuid.Parse(idStr)
+}
+
+func ConvertStringToObjectID(idStr string) (primitive.ObjectID, error) {
+	return primitive.ObjectIDFromHex(idStr)
 }
